@@ -1,0 +1,6 @@
+{
+  "name": "AI Resume Analyzer & Candidate Screening",
+  "description": "An AI-powered recruiter dashboard for analyzing resumes using AWS Comprehend. Supports SDG 8 by improving recruitment efficiency.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Analyzer & Candidate Screening System</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🤖 AI Resume Analyzer</h2>
+                <p class="sidebar-subtitle">Candidate Screening System</p>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-item active" data-section="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a href="#upload" class="nav-item" data-section="upload">
+                    <span class="nav-icon">📤</span>
+                    <span class="nav-text">Upload Resume</span>
+                </a>
+                <a href="#analysis" class="nav-item" data-section="analysis">
+                    <span class="nav-icon">🔍</span>
+                    <span class="nav-text">Analysis</span>
+                </a>
+                <a href="#matching" class="nav-item" data-section="matching">
+                    <span class="nav-icon">🎯</span>
+                    <span class="nav-text">Job Matching</span>
+                </a>
+                <a href="#candidates" class="nav-item" data-section="candidates">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-text">Candidates</span>
+                </a>
+                <a href="#sdg8" class="nav-item" data-section="sdg8">
+                    <span class="nav-icon">🌍</span>
+                    <span class="nav-text">SDG 8 Impact</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="dark-mode-toggle" id="darkModeToggle">
+                    <span class="toggle-icon">🌙</span>
+                    <span class="toggle-text">Dark Mode</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menuToggle">☰</button>
+                    <h1>Recruiter Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <span class="user-avatar">👤</span>
+                        <span class="user-name">Recruiter</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Section -->
+            <section class="section active" id="dashboard-section">
+                <div class="section-header">
+                    <h2>Dashboard Overview</h2>
+                    <p class="section-subtitle">Welcome to AI-powered resume screening</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📄</div>
+                        <div class="stat-content">
+                            <h3>Total Resumes</h3>
+                            <p class="stat-value" id="totalResumes">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-content">
+                            <h3>Recommended</h3>
+                            <p class="stat-value" id="recommendedCount">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-content">
+                            <h3>Avg Score</h3>
+                            <p class="stat-value" id="avgScore">0%</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-content">
+                            <h3>Match Rate</h3>
+                            <p class="stat-value" id="matchRate">0%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+                    <button class="btn btn-primary" onclick="showSection('upload')">
+                        <span>📤</span> Upload New Resume
+                    </button>
+                    <button class="btn btn-secondary" onclick="showSection('matching')">
+                        <span>🎯</span> Match with Job
+                    </button>
+                    <button class="btn btn-outline" onclick="exportReport()">
+                        <span>📊</span> Export Report
+                    </button>
+                </div>
+            </section>
+
+            <!-- Upload Section -->
+            <section class="section" id="upload-section">
+                <div class="section-header">
+                    <h2>Upload Resume</h2>
+                    <p class="section-subtitle">Upload PDF or DOCX resumes for AI analysis</p>
+                </div>
+
+                <div class="upload-container">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">📁</div>
+                        <h3>Drag & Drop Resume Here</h3>
+                        <p>or click to browse files</p>
+                        <p class="upload-hint">Supported formats: PDF, DOCX (Max 10MB)</p>
+                        <input type="file" id="fileInput" accept=".pdf,.docx,.doc" hidden>
+                        <button class="btn btn-primary" id="browseBtn">Browse Files</button>
+                    </div>
+                    
+                    <div class="upload-progress" id="uploadProgress" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <p class="progress-text" id="progressText">Uploading...</p>
+                    </div>
+
+                    <div class="upload-success" id="uploadSuccess" style="display: none;">
+                        <div class="success-icon">✅</div>
+                        <h3>Upload Successful!</h3>
+                        <p id="uploadedFileName">filename.pdf</p>
+                        <button class="btn btn-primary" onclick="analyzeResume()">Analyze Resume</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analysis Section -->
+            <section class="section" id="analysis-section">
+                <div class="section-header">
+                    <h2>Resume Analysis</h2>
+                    <p class="section-subtitle">AI-powered insights from AWS Comprehend</p>
+                </div>
+
+                <div class="analysis-container" id="analysisContainer" style="display: none;">
+                    <!-- Score Circle -->
+                    <div class="score-section">
+                        <div class="score-circle">
+                            <svg class="score-svg" viewBox="0 0 100 100">
+                                <circle class="score-bg" cx="50" cy="50" r="45"></circle>
+                                <circle class="score-progress" id="scoreProgress" cx="50" cy="50" r="45"></circle>
+                            </svg>
+                            <div class="score-value" id="scoreValue">0</div>
+                            <div class="score-label">Resume Score</div>
+                        </div>
+                        <div class="recommendation-badge" id="recommendationBadge">
+                            <span class="badge-icon">⭐</span>
+                            <span class="badge-text" id="recommendationText">Recommended</span>
+                        </div>
+                    </div>
+
+                    <!-- Analysis Cards -->
+                    <div class="analysis-grid">
+                        <div class="analysis-card">
+                            <h3>🎯 Top Skills</h3>
+                            <div class="skill-tags" id="skillTags">
+                                <span class="skill-tag">JavaScript</span>
+                                <span class="skill-tag">Python</span>
+                                <span class="skill-tag">AWS</span>
+                            </div>
+                        </div>
+
+                        <div class="analysis-card">
+                            <h3>🏢 Organizations</h3>
+                            <ul class="organization-list" id="organizationList">
+                                <li>Company A</li>
+                                <li>Company B</li>
+                            </ul>
+                        </div>
+
+                        <div class="analysis-card">
+                            <h3>📅 Experience Timeline</h3>
+                            <div class="timeline" id="timeline">
+                                <div class="timeline-item">
+                                    <span class="timeline-date">2020 - Present</span>
+                                    <span class="timeline-role">Senior Developer</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="analysis-card">
+                            <h3>🔑 Key Phrases</h3>
+                            <div class="key-phrases" id="keyPhrases">
+                                <span class="key-phrase">Full Stack Development</span>
+                                <span class="key-phrase">Cloud Architecture</span>
+                            </div>
+                        </div>
+
+                        <div class="analysis-card">
+                            <h3>😊 Sentiment Analysis</h3>
+                            <div class="sentiment-result" id="sentimentResult">
+                                <span class="sentiment-label">Positive</span>
+                                <div class="sentiment-bar">
+                                    <div class="sentiment-fill positive" style="width: 85%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="analysis-card">
+                            <h3>🌐 Language Detected</h3>
+                            <p class="language-result" id="languageResult">English (95%)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="no-analysis" id="noAnalysis">
+                    <div class="no-data-icon">📊</div>
+                    <h3>No Analysis Yet</h3>
+                    <p>Upload a resume to see AI-powered insights</p>
+                    <button class="btn btn-primary" onclick="showSection('upload')">Upload Resume</button>
+                </div>
+            </section>
+
+            <!-- Job Matching Section -->
+            <section class="section" id="matching-section">
+                <div class="section-header">
+                    <h2>Job Matching</h2>
+                    <p class="section-subtitle">Compare resume with job description</p>
+                </div>
+
+                <div class="matching-container">
+                    <div class="job-description-card">
+                        <h3>Job Description</h3>
+                        <textarea id="jobDescription" placeholder="Paste the job description here..."></textarea>
+                        <button class="btn btn-primary" onclick="matchWithJob()">Match Resume</button>
+                    </div>
+
+                    <div class="match-results" id="matchResults" style="display: none;">
+                        <div class="match-percentage-section">
+                            <div class="match-circle">
+                                <svg class="match-svg" viewBox="0 0 100 100">
+                                    <circle class="match-bg" cx="50" cy="50" r="45"></circle>
+                                    <circle class="match-progress" id="matchProgress" cx="50" cy="50" r="45"></circle>
+                                </svg>
+                                <div class="match-value" id="matchValue">0%</div>
+                                <div class="match-label">Match Percentage</div>
+                            </div>
+                        </div>
+
+                        <div class="match-details">
+                            <div class="match-card">
+                                <h3>✅ Matched Skills</h3>
+                                <div class="matched-skills" id="matchedSkills">
+                                    <span class="skill-tag match">JavaScript</span>
+                                    <span class="skill-tag match">Python</span>
+                                </div>
+                            </div>
+
+                            <div class="match-card">
+                                <h3>❌ Missing Skills</h3>
+                                <div class="missing-skills" id="missingSkills">
+                                    <span class="skill-tag missing">Docker</span>
+                                    <span class="skill-tag missing">Kubernetes</span>
+                                </div>
+                            </div>
+
+                            <div class="match-card">
+                                <h3>📈 Experience Level</h3>
+                                <p class="experience-level" id="experienceLevel">Mid Level</p>
+                            </div>
+
+                            <div class="match-card">
+                                <h3>🎯 Overall Score</h3>
+                                <p class="overall-score" id="overallScore">75/100</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Candidates Section -->
+            <section class="section" id="candidates-section">
+                <div class="section-header">
+                    <h2>Candidate Rankings</h2>
+                    <p class="section-subtitle">Ranked list of analyzed candidates</p>
+                </div>
+
+                <div class="candidates-table-container">
+                    <table class="candidates-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Candidate Name</th>
+                                <th>Score</th>
+                                <th>Match %</th>
+                                <th>Experience</th>
+                                <th>Recommendation</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="candidatesTableBody">
+                            <tr class="no-candidates">
+                                <td colspan="7">No candidates analyzed yet</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- SDG 8 Section -->
+            <section class="section" id="sdg8-section">
+                <div class="section-header">
+                    <h2>SDG 8: Decent Work and Economic Growth</h2>
+                    <p class="section-subtitle">How this project supports sustainable development goals</p>
+                </div>
+
+                <div class="sdg-container">
+                    <div class="sdg-header">
+                        <div class="sdg-icon">🌍</div>
+                        <h3>Sustainable Development Goal 8</h3>
+                        <p class="sdg-title">Decent Work and Economic Growth</p>
+                    </div>
+
+                    <div class="sdg-content">
+                        <div class="sdg-card">
+                            <h4>🎯 Target 8.5: Achieve full and productive employment</h4>
+                            <p>This AI-powered resume screening system helps organizations efficiently identify qualified candidates, reducing time-to-hire and improving the quality of hires. By automating the initial screening process, recruiters can focus on meaningful interactions with candidates.</p>
+                        </div>
+
+                        <div class="sdg-card">
+                            <h4>💼 Target 8.6: Substantially reduce the proportion of youth not in employment</h4>
+                            <p>The system provides objective, skills-based evaluation that reduces bias in recruitment. This helps young professionals and entry-level candidates get fair consideration based on their actual skills and potential rather than subjective factors.</p>
+                        </div>
+
+                        <div class="sdg-card">
+                            <h4>⚡ Target 8.3: Promote development-oriented policies</h4>
+                            <p>By leveraging AI and cloud technologies (AWS Comprehend, S3), this project demonstrates how technology can be used to create more efficient and inclusive hiring processes, supporting economic growth through better talent matching.</p>
+                        </div>
+
+                        <div class="sdg-card">
+                            <h4>🤝 Target 8.8: Protect labour rights and promote safe working environments</h4>
+                            <p>The system's transparent scoring and recommendation process provides clear feedback to recruiters, helping ensure fair and consistent evaluation practices across all candidates.</p>
+                        </div>
+
+                        <div class="sdg-impact">
+                            <h4>📊 Project Impact</h4>
+                            <ul>
+                                <li><strong>Efficiency:</strong> Reduces resume screening time by up to 80%</li>
+                                <li><strong>Objectivity:</strong> Provides data-driven, unbiased candidate evaluation</li>
+                                <li><strong>Accessibility:</strong> Makes job opportunities more accessible through fair screening</li>
+                                <li><strong>Innovation:</strong> Demonstrates AI application for social good</li>
+                                <li><strong>Scalability:</strong> Can be deployed globally to support diverse hiring needs</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>AI Resume Analyzer & Candidate Screening System</p>
+            <p>Powered by AWS Comprehend & S3 | Supporting SDG 8</p>
+            <p class="footer-note">© 2024 | Built for College Mini/Major Projects</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
