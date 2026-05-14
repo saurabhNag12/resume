@@ -1,25 +1,8 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { 
-  Upload, 
-  FileText, 
-  Search, 
-  CheckCircle2, 
-  AlertCircle, 
-  BrainCircuit, 
-  User, 
-  LayoutDashboard, 
-  Settings, 
-  HelpCircle, 
-  Globe,
-  Star,
-  ChevronRight,
-  Sun,
-  Moon,
-  Download,
-  Terminal,
-  Briefcase,
-  ShieldCheck,
-  ShieldAlert
+  Upload, FileText, Search, CheckCircle2, AlertCircle, BrainCircuit, User,
+  LayoutDashboard, Settings, HelpCircle, Globe, Star, ChevronRight, Sun, Moon,
+  Download, Terminal, Briefcase, ShieldCheck, ShieldAlert, Clock, Plus, MapPin, Hash
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -42,6 +25,15 @@ interface ExtractedData {
   entities?: any[];
   sentiment?: string;
   keyPhrases?: any[];
+}
+
+interface HistoryItem {
+  id: number;
+  filename: string;
+  jobTitle: string;
+  score: number;
+  recommendation: string;
+  date: string;
 }
 
 // --- AI Setup ---
@@ -108,6 +100,7 @@ export default function App() {
   const [jobDescription, setJobDescription] = useState("");
   const [awsStatus, setAwsStatus] = useState<{ configured: boolean, s3Enabled: boolean, region: string } | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
 
   useEffect(() => {
     fetch("/api/aws-status")
@@ -222,6 +215,7 @@ export default function App() {
       // Client-side fallback (works on Amplify/static hosting)
       const result = analyzeLocally(extractedData.text, jobDescription);
       setAnalysis(result);
+      setHistory(prev => [{ id: Date.now(), filename: extractedData.filename, jobTitle: jobDescription.substring(0, 40) || "General", score: result.score, recommendation: result.recommendation, date: new Date().toLocaleString() }, ...prev]);
     } catch (err: any) {
       console.error("Analysis failed", err);
       setAnalysisError(err.message || "Analysis failed.");
@@ -461,6 +455,79 @@ export default function App() {
                   </div>
                 </motion.div>
               )}
+            </motion.div>
+          )}
+
+          {activeTab === "analyze" && (
+            <motion.div key="analyze" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-8">
+              <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-200 dark:border-slate-800">
+                <h2 className="text-2xl font-bold mb-6 flex items-center gap-3"><Search size={24} className="text-blue-500" /> Resume Analysis Details</h2>
+                {extractedData ? (
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-4 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/30">
+                      <FileText size={24} className="text-blue-500" />
+                      <div><p className="font-semibold">{extractedData.filename}</p><p className="text-sm text-slate-500">{extractedData.text.length} characters extracted</p></div>
+                    </div>
+                    <div><h3 className="font-bold text-sm uppercase tracking-widest text-slate-500 mb-3">Extracted Text Preview</h3>
+                      <div className="bg-slate-50 dark:bg-slate-950 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 max-h-64 overflow-y-auto">
+                        <pre className="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap font-mono">{extractedData.text.substring(0, 2000)}{extractedData.text.length > 2000 ? "..." : ""}</pre>
+                      </div>
+                    </div>
+                    {analysis && (
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="bg-emerald-50 dark:bg-emerald-900/10 p-4 rounded-2xl text-center border border-emerald-100 dark:border-emerald-900/30"><p className="text-3xl font-bold text-emerald-600">{analysis.score}</p><p className="text-xs text-slate-500 mt-1">Score</p></div>
+                        <div className="bg-blue-50 dark:bg-blue-900/10 p-4 rounded-2xl text-center border border-blue-100 dark:border-blue-900/30"><p className="text-3xl font-bold text-blue-600">{analysis.matchPercentage}%</p><p className="text-xs text-slate-500 mt-1">Match</p></div>
+                        <div className="bg-purple-50 dark:bg-purple-900/10 p-4 rounded-2xl text-center border border-purple-100 dark:border-purple-900/30"><p className="text-lg font-bold text-purple-600">{analysis.experienceLevel}</p><p className="text-xs text-slate-500 mt-1">Level</p></div>
+                        <div className="bg-amber-50 dark:bg-amber-900/10 p-4 rounded-2xl text-center border border-amber-100 dark:border-amber-900/30"><p className="text-lg font-bold text-amber-600">{analysis.recommendation.split(' ')[0]}</p><p className="text-xs text-slate-500 mt-1">Status</p></div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-16 text-slate-400"><Search size={48} className="mx-auto mb-4 opacity-30" /><p>Upload a resume from the Dashboard to see analysis details here.</p></div>
+                )}
+              </div>
+              {history.length > 0 && (
+                <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-200 dark:border-slate-800">
+                  <h3 className="text-lg font-bold mb-6 flex items-center gap-2"><Clock size={20} className="text-blue-500" /> Screening History</h3>
+                  <div className="space-y-3">
+                    {history.map(h => (
+                      <div key={h.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800">
+                        <div className="flex items-center gap-3"><FileText size={18} className="text-blue-500" /><div><p className="font-medium text-sm">{h.filename}</p><p className="text-xs text-slate-500">{h.jobTitle} • {h.date}</p></div></div>
+                        <div className="flex items-center gap-3"><span className={`text-lg font-bold ${h.score >= 80 ? 'text-emerald-500' : h.score >= 60 ? 'text-amber-500' : 'text-rose-500'}`}>{h.score}%</span><span className="text-xs px-2 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 font-medium">{h.recommendation}</span></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {activeTab === "jobs" && (
+            <motion.div key="jobs" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-8">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold">Job Listings</h2>
+                <button className="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-semibold text-sm flex items-center gap-2 shadow-lg shadow-blue-500/20 transition-all"><Plus size={18} /> Post New Job</button>
+              </div>
+              {[{ title: "Senior Frontend Developer", company: "TechCorp India", location: "Bangalore", type: "Full-time", salary: "₹18-25 LPA", skills: ["React", "TypeScript", "Node.js"], applicants: 24, status: "Open" },
+                { title: "Full Stack Engineer", company: "StartupXYZ", location: "Remote", type: "Full-time", salary: "₹12-18 LPA", skills: ["Python", "React", "AWS"], applicants: 38, status: "Open" },
+                { title: "UI/UX Designer", company: "DesignStudio", location: "Mumbai", type: "Contract", salary: "₹8-12 LPA", skills: ["Figma", "CSS", "Prototyping"], applicants: 15, status: "Open" },
+                { title: "Data Analyst", company: "Analytics Co.", location: "Hyderabad", type: "Full-time", salary: "₹10-15 LPA", skills: ["SQL", "Python", "Tableau"], applicants: 42, status: "Closed" }
+              ].map((job, i) => (
+                <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 hover:shadow-lg hover:shadow-blue-500/5 transition-all">
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3"><h3 className="text-lg font-bold">{job.title}</h3><span className={`text-xs px-2.5 py-1 rounded-full font-bold ${job.status === 'Open' ? 'bg-emerald-100 dark:bg-emerald-900/20 text-emerald-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>{job.status}</span></div>
+                      <p className="text-slate-500 font-medium">{job.company}</p>
+                      <div className="flex gap-4 text-sm text-slate-400"><span className="flex items-center gap-1"><MapPin size={14} /> {job.location}</span><span className="flex items-center gap-1"><Briefcase size={14} /> {job.type}</span><span className="flex items-center gap-1"><Hash size={14} /> {job.applicants} applicants</span></div>
+                    </div>
+                    <div className="text-right"><p className="text-lg font-bold text-blue-600">{job.salary}</p></div>
+                  </div>
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <div className="flex gap-2">{job.skills.map((s, j) => <span key={j} className="px-3 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg text-xs font-semibold border border-blue-100 dark:border-blue-900/40">{s}</span>)}</div>
+                    <button className="px-4 py-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl text-sm font-semibold transition-colors">View Details →</button>
+                  </div>
+                </div>
+              ))}
             </motion.div>
           )}
 
